@@ -115,11 +115,21 @@ namespace ams::ldr {
                 meta->is_signed = false;
                 return ResultSuccess();
             }
-
-            /* Verify the signature. */
-
-            meta->is_signed = true;
+			
+			meta->is_signed = true;
             return ResultSuccess();
+			
+            /* Verify the signature. */
+            const u8 *sig         = meta->acid->signature;
+            const size_t sig_size = sizeof(meta->acid->signature);
+            const u8 *mod         = GetAcidSignatureModulus(meta->npdm->signature_key_generation);
+            const size_t mod_size = fssystem::AcidSignatureKeyModulusSize;
+            const u8 *exp         = fssystem::AcidSignatureKeyExponent;
+            const size_t exp_size = fssystem::AcidSignatureKeyExponentSize;
+            const u8 *msg         = meta->acid->modulus;
+            const size_t msg_size = meta->acid->size;
+            const bool is_signature_valid = crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
+            R_UNLESS(is_signature_valid || !IsEnabledProgramVerification(), ResultInvalidAcidSignature());
         }
 
         Result LoadMetaFromFile(fs::FileHandle file, MetaCache *cache) {
