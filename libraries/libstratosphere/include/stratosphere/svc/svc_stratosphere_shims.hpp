@@ -319,7 +319,7 @@ namespace ams::svc::aarch64::lp64 {
     }
 
     ALWAYS_INLINE Result QueryIoMapping(::ams::svc::Address *out_address, ::ams::svc::Size *out_size, ::ams::svc::PhysicalAddress physical_address, ::ams::svc::Size size) {
-        return ::svcQueryIoMapping(reinterpret_cast<u64 *>(out_address), reinterpret_cast<u64 *>(out_size), physical_address, size);
+        return ::svcQueryIoMapping(reinterpret_cast<u64 *>(out_address), reinterpret_cast<u64>(out_size), physical_address, size);
     }
 
     ALWAYS_INLINE Result LegacyQueryIoMapping(::ams::svc::Address *out_address, ::ams::svc::PhysicalAddress physical_address, ::ams::svc::Size size) {
