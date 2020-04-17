@@ -90,7 +90,7 @@ void __appInit(void) {
         R_ABORT_UNLESS(lblInitialize());
         R_ABORT_UNLESS(psmInitialize());
         R_ABORT_UNLESS(spsmInitialize());
-        R_ABORT_UNLESS(plInitialize());
+        R_ABORT_UNLESS(plInitialize(PlServiceType_User));
         R_ABORT_UNLESS(gpioInitialize());
         R_ABORT_UNLESS(fsInitialize());
     });
