@@ -34,26 +34,6 @@ namespace ams::pm::impl {
             u32 flags;
         };
 
-        enum LaunchFlags {
-            LaunchFlags_None                = 0,
-            LaunchFlags_SignalOnExit        = (1 << 0),
-            LaunchFlags_SignalOnStart       = (1 << 1),
-            LaunchFlags_SignalOnException   = (1 << 2),
-            LaunchFlags_SignalOnDebugEvent  = (1 << 3),
-            LaunchFlags_StartSuspended      = (1 << 4),
-            LaunchFlags_DisableAslr         = (1 << 5),
-        };
-
-        enum LaunchFlagsDeprecated {
-            LaunchFlagsDeprecated_None                = 0,
-            LaunchFlagsDeprecated_SignalOnExit        = (1 << 0),
-            LaunchFlagsDeprecated_StartSuspended      = (1 << 1),
-            LaunchFlagsDeprecated_SignalOnException   = (1 << 2),
-            LaunchFlagsDeprecated_DisableAslr         = (1 << 3),
-            LaunchFlagsDeprecated_SignalOnDebugEvent  = (1 << 4),
-            LaunchFlagsDeprecated_SignalOnStart       = (1 << 5),
-        };
-
 #define GET_FLAG_MASK(flag) (hos_version >= hos::Version_5_0_0 ? static_cast<u32>(LaunchFlags_##flag) : static_cast<u32>(LaunchFlagsDeprecated_##flag))
 
         inline bool ShouldSignalOnExit(u32 launch_flags) {
@@ -137,7 +117,6 @@ namespace ams::pm::impl {
         /* Process Tracking globals. */
         void ProcessTrackingMain(void *arg);
 
-        constexpr int    ProcessTrackThreadPriority  = 21;
         os::ThreadType g_process_track_thread;
         alignas(os::ThreadStackAlignment) u8 g_process_track_thread_stack[16_KB];
 
@@ -425,7 +404,8 @@ namespace ams::pm::impl {
         R_TRY(resource::InitializeResourceManager());
 
         /* Create thread. */
-        R_ABORT_UNLESS(os::CreateThread(std::addressof(g_process_track_thread), ProcessTrackingMain, nullptr, g_process_track_thread_stack, sizeof(g_process_track_thread_stack), ProcessTrackThreadPriority));
+        R_ABORT_UNLESS(os::CreateThread(std::addressof(g_process_track_thread), ProcessTrackingMain, nullptr, g_process_track_thread_stack, sizeof(g_process_track_thread_stack), AMS_GET_SYSTEM_THREAD_PRIORITY(pm, ProcessTrack)));
+        os::SetThreadNamePointer(std::addressof(g_process_track_thread), AMS_GET_SYSTEM_THREAD_NAME(pm, ProcessTrack));
 
         /* Start thread. */
         os::StartThread(std::addressof(g_process_track_thread));
