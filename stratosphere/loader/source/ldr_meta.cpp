@@ -115,10 +115,10 @@ namespace ams::ldr {
                 meta->is_signed = false;
                 return ResultSuccess();
             }
-			
-			meta->is_signed = true;
+
+            meta->is_signed = true;
             return ResultSuccess();
-			
+
             /* Verify the signature. */
             const u8 *sig         = meta->acid->signature;
             const size_t sig_size = sizeof(meta->acid->signature);
@@ -130,6 +130,9 @@ namespace ams::ldr {
             const size_t msg_size = meta->acid->size;
             const bool is_signature_valid = crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
             R_UNLESS(is_signature_valid || !IsEnabledProgramVerification(), ResultInvalidAcidSignature());
+
+            meta->is_signed = is_signature_valid;
+            return ResultSuccess();
         }
 
         Result LoadMetaFromFile(fs::FileHandle file, MetaCache *cache) {
