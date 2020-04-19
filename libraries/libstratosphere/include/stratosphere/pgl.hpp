@@ -19,3 +19,5 @@
 #include <stratosphere/pgl/pgl_types.hpp>
 #include <stratosphere/pgl/pgl_event_observer.hpp>
 #include <stratosphere/pgl/pgl_shell_api.hpp>
+#include <stratosphere/pgl/pgl_shell_api.hpp>
+#include <stratosphere/pgl/srv/pgl_srv_api.hpp>
