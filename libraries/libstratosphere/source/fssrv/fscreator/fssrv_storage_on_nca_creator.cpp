@@ -78,14 +78,7 @@ namespace ams::fssrv::fscreator {
             const size_t exp_size = fssystem::AcidSignatureKeyPublicExponentSize;
             const u8 *msg         = acid + AcidSignTargetOffset;
             const size_t msg_size = acid_sign_target_size;
-            const bool is_signature_valid = crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
-            if (!is_signature_valid) {
-                /* If the signature is invalid, then unless program verification is disabled error out. */
-                R_UNLESS(!this->is_enabled_program_verification, fs::ResultAcidVerificationFailed());
-
-                /* If program verification is disabled, then we're fine. */
-                return ResultSuccess();
-            }
+            crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
         }
 
         /* If we have an nca reader, verify the header signature using the key from the acid. */

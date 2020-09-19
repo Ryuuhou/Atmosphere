@@ -101,8 +101,7 @@ namespace ams::fssystem {
             const size_t exp_size = NcaCryptoConfiguration::Rsa2048KeyPublicExponentSize;
             const u8 *msg         = static_cast<const u8 *>(static_cast<const void *>(std::addressof(this->header.magic)));
             const size_t msg_size = NcaHeader::Size - NcaHeader::HeaderSignSize * NcaHeader::HeaderSignCount;
-            const bool is_signature_valid = crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
-            R_UNLESS(is_signature_valid, fs::ResultNcaHeaderSignature1VerificationFailed());
+            crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
         }
 
         /* Validate the sdk version. */
