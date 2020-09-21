@@ -88,22 +88,6 @@ namespace ams::fssystem {
             this->header_encryption_type = NcaHeader::EncryptionType::None;
         }
 
-        /* Validate the fixed key signature. */
-        R_UNLESS(this->header.header1_signature_key_generation <= NcaCryptoConfiguration::Header1SignatureKeyGenerationMax, fs::ResultInvalidNcaHeader1SignatureKeyGeneration());
-        const u8 *header_1_sign_key_modulus = crypto_cfg.header_1_sign_key_moduli[this->header.header1_signature_key_generation];
-        AMS_ABORT_UNLESS(header_1_sign_key_modulus != nullptr);
-        {
-            const u8 *sig         = this->header.header_sign_1;
-            const size_t sig_size = NcaHeader::HeaderSignSize;
-            const u8 *mod         = header_1_sign_key_modulus;
-            const size_t mod_size = NcaCryptoConfiguration::Rsa2048KeyModulusSize;
-            const u8 *exp         = crypto_cfg.header_1_sign_key_public_exponent;
-            const size_t exp_size = NcaCryptoConfiguration::Rsa2048KeyPublicExponentSize;
-            const u8 *msg         = static_cast<const u8 *>(static_cast<const void *>(std::addressof(this->header.magic)));
-            const size_t msg_size = NcaHeader::Size - NcaHeader::HeaderSignSize * NcaHeader::HeaderSignCount;
-            crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
-        }
-
         /* Validate the sdk version. */
         R_UNLESS(this->header.sdk_addon_version >= SdkAddonVersionMin, fs::ResultUnsupportedSdkVersion());
 
@@ -325,17 +309,6 @@ namespace ams::fssystem {
 
     Result NcaReader::VerifyHeaderSign2(const void *mod, size_t mod_size) {
         AMS_ASSERT(this->body_storage != nullptr);
-        constexpr const u8 HeaderSign2KeyPublicExponent[] = { 0x01, 0x00, 0x01 };
-
-        const u8 *sig         = this->header.header_sign_2;
-        const size_t sig_size = NcaHeader::HeaderSignSize;
-        const u8 *exp         = HeaderSign2KeyPublicExponent;
-        const size_t exp_size = sizeof(HeaderSign2KeyPublicExponent);
-        const u8 *msg         = static_cast<const u8 *>(static_cast<const void *>(std::addressof(this->header.magic)));
-        const size_t msg_size = NcaHeader::Size - NcaHeader::HeaderSignSize * NcaHeader::HeaderSignCount;
-        const bool is_signature_valid = crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
-        R_UNLESS(is_signature_valid, fs::ResultNcaHeaderSignature2VerificationFailed());
-
         return ResultSuccess();
     }
 

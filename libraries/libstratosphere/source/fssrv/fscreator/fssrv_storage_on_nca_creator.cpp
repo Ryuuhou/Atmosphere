@@ -53,8 +53,8 @@ namespace ams::fssrv::fscreator {
         R_UNLESS(size == static_cast<size_t>(acid_size), fs::ResultInvalidAcidSize());
 
         /* Define interesting extents. */
-        constexpr s32 AcidSignOffset           = 0x000;
-        constexpr s32 AcidSignSize             = 0x100;
+        //constexpr s32 AcidSignOffset           = 0x000;
+        //constexpr s32 AcidSignSize             = 0x100;
         constexpr s32 HeaderSign2KeyOffset     = 0x100;
         constexpr s32 HeaderSign2KeySize       = 0x100;
         constexpr s32 AcidSignTargetOffset     = 0x100;
@@ -67,19 +67,6 @@ namespace ams::fssrv::fscreator {
         /* Validate the sign target size. */
         R_UNLESS(acid_size >= static_cast<s32>(acid_sign_target_size + sizeof(s32)), fs::ResultInvalidAcidSize());
         R_UNLESS(acid_size >= AcidSignTargetOffset + acid_sign_target_size,          fs::ResultInvalidAcidSize());
-
-        /* Verify the signature. */
-        {
-            const u8 *sig         = acid + AcidSignOffset;
-            const size_t sig_size = static_cast<size_t>(AcidSignSize);
-            const u8 *mod         = fssystem::GetAcidSignatureKeyModulus(this->is_prod, acid_signature_key_generation);
-            const size_t mod_size = fssystem::AcidSignatureKeyModulusSize;
-            const u8 *exp         = fssystem::GetAcidSignatureKeyPublicExponent();
-            const size_t exp_size = fssystem::AcidSignatureKeyPublicExponentSize;
-            const u8 *msg         = acid + AcidSignTargetOffset;
-            const size_t msg_size = acid_sign_target_size;
-            crypto::VerifyRsa2048PssSha256(sig, sig_size, mod, mod_size, exp, exp_size, msg, msg_size);
-        }
 
         /* If we have an nca reader, verify the header signature using the key from the acid. */
         if (nca_reader) {
